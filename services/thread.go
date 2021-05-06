@@ -15,6 +15,7 @@ type ThreadService interface {
     Create(t models.Thread) (error, *models.Thread)
     Report(id string) error
     DeleteWithPassword(id, password string) error
+    Delete(id string) error
 }
 type threadService struct {
     db *gorm.DB
@@ -77,4 +78,17 @@ func (ts *threadService) List(page int) (error, *[]models.Thread) {
         return db.Limit(10)
     }).Order("bumped_on DESC").Limit(10).Offset(offset).Find(&t)
     return result.Error, &t
+}
+
+func (ts *threadService) Delete(id string) error {
+    return ts.db.Transaction(func(tx *gorm.DB) error {
+        var t models.Thread
+        if result := tx.Where("id = ? ", id).First(&t); result.Error != nil {
+            return result.Error
+        }
+        if result := tx.Model(&t).Where("id = ?", id).Update("text", "[deleted]"); result.Error != nil {
+            return result.Error
+        }
+        return nil
+    })
 }

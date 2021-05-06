@@ -16,6 +16,8 @@ func main() {
     rs := services.NewReplyService(conn)
     tc := controllers.NewThreadController(ts)
     rc := controllers.NewReplyController(rs)
+    ac := controllers.NewAdminController(ts, rs)
+    r.RegisterAdminRoutes(ac)
     r.RegisterThreadRoutes(tc)
     r.RegisterReplyRoutes(rc)
     r.Serve()

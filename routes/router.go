@@ -11,6 +11,7 @@ type Router interface {
     Serve() error
     RegisterThreadRoutes(c controllers.ThreadController)
     RegisterReplyRoutes(c controllers.ReplyController)
+    RegisterAdminRoutes(c controllers.AdminController)
 }
 type router struct {
     *gin.Engine

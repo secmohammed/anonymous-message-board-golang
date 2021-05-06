@@ -37,3 +37,12 @@ func (r *router) RegisterReplyRoutes(c controllers.ReplyController) {
     rg.DELETE("/:id", c.DeleteReply)
     rg.GET("/:id", c.GetReply)
 }
+
+func (r *router) RegisterAdminRoutes(c controllers.AdminController) {
+    apiKey := r.c.Get().GetString("app.api_key")
+
+    rg := r.Group("/api/admin")
+    rg.Use(ApiKey("X-API-KEY", apiKey))
+    rg.DELETE("/threads/:id", c.DeleteThread)
+    rg.DELETE("/replies/:id", c.DeleteReply)
+}

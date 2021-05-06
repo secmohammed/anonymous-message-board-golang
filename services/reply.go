@@ -17,6 +17,7 @@ type ReplyService interface {
     Create(tid string, r models.Reply) (error, *models.Reply)
     DeleteWithPassword(id, password string) error
     Report(id string) error
+    Delete(id string) error
 }
 type replyService struct {
     db *gorm.DB
@@ -73,6 +74,18 @@ func (rs *replyService) DeleteWithPassword(id, password string) error {
         }
         if !utils.CheckPassword(password, r.DeletePassword) {
             return errors.New("Incorrect Password")
+        }
+        if result := tx.Model(&r).Where("id = ?", id).Update("text", "[deleted]"); result.Error != nil {
+            return result.Error
+        }
+        return nil
+    })
+}
+func (rs *replyService) Delete(id string) error {
+    return rs.db.Transaction(func(tx *gorm.DB) error {
+        var r models.Reply
+        if result := tx.Where("id = ? ", id).First(&r); result.Error != nil {
+            return result.Error
         }
         if result := tx.Model(&r).Where("id = ?", id).Update("text", "[deleted]"); result.Error != nil {
             return result.Error
